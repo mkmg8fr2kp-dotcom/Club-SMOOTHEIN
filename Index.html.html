@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Club SMOOTHEIN · prototipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#17304F; --ink-soft:#4A5B72; --brand:#1A9BD7; --brand-soft:#E3F3FB;
+  --bg:#F4F8FB; --surface:#FFFFFF; --line:#DCE4EC; --ok:#22874A; --ok-soft:#E3F4E8;
+  --warn:#B45309; --warn-soft:#FCEFD9; --err:#B42318; --err-soft:#FBE4E2;
+  --frutilla:#E0475B; --pina:#E9B500; --berries:#6D4CC2; --mango:#F08A24; --empty:#E8EEF3;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#E8F1F8; --ink-soft:#A9B9C9; --brand:#4FB8E8; --brand-soft:#16324A;
+    --bg:#0E1B2A; --surface:#152638; --line:#25394F; --ok:#5CC487; --ok-soft:#173826;
+    --warn:#F0A64A; --warn-soft:#3A2A12; --err:#F07A6E; --err-soft:#3D1C1A; --empty:#22364C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#E8F1F8; --ink-soft:#A9B9C9; --brand:#4FB8E8; --brand-soft:#16324A;
+  --bg:#0E1B2A; --surface:#152638; --line:#25394F; --ok:#5CC487; --ok-soft:#173826;
+  --warn:#F0A64A; --warn-soft:#3A2A12; --err:#F07A6E; --err-soft:#3D1C1A; --empty:#22364C;
+  color-scheme: dark;
+}
+:root{ box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+*,*::before,*::after{ box-sizing:inherit; }
+html{ scroll-padding-top:env(safe-area-inset-top,0px); }
+body{ margin:0; background:var(--bg); color:var(--ink); font-family:"Outfit",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; font-size:16px; line-height:1.45; }
+.app{ max-width:440px; margin:0 auto; min-height:100%; padding:0 18px 32px; }
+header.top{ display:flex; align-items:center; justify-content:space-between; padding:18px 0 10px; }
+.brand{ font-weight:700; font-size:21px; letter-spacing:.2px; color:var(--ink); }
+.brand span{ color:var(--brand); }
+.phase{ font-size:13px; color:var(--ink-soft); background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:4px 10px; }
+.note{ font-size:13px; color:var(--ink-soft); margin:2px 0 14px; }
+h1{ font-size:26px; line-height:1.15; margin:8px 0 6px; font-weight:700; }
+h2{ font-size:19px; margin:0 0 8px; font-weight:600; }
+p{ margin:0 0 10px; }
+.panel{ background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:18px; margin-bottom:14px; }
+.why{ background:var(--brand-soft); border-radius:14px; padding:14px; margin-bottom:16px; }
+.why h2{ font-size:16px; margin-bottom:4px; }
+.why p{ font-size:15px; margin:0; color:var(--ink); }
+label.field{ display:block; font-size:14px; color:var(--ink-soft); margin:12px 0 6px; }
+input[type=text], input[type=tel]{ width:100%; font:inherit; color:var(--ink); background:var(--surface); border:1.5px solid var(--line); border-radius:12px; padding:12px 14px; }
+input:focus-visible, button:focus-visible{ outline:3px solid var(--brand); outline-offset:2px; }
+.check{ display:flex; gap:10px; align-items:flex-start; margin:14px 0 0; font-size:15px; }
+.check input{ width:20px; height:20px; margin-top:2px; accent-color:var(--brand); flex:none; }
+.check small{ display:block; color:var(--ink-soft); font-size:13px; }
+.btn{ display:block; width:100%; font:inherit; font-weight:600; font-size:17px; border:0; border-radius:14px; padding:14px; cursor:pointer; background:var(--brand); color:#fff; margin-top:16px; }
+.btn:disabled{ opacity:.45; cursor:not-allowed; }
+.btn.ghost{ background:transparent; color:var(--brand); border:1.5px solid var(--brand); }
+.btn.ok{ background:var(--ok); }
+.err-msg{ color:var(--err); font-size:14px; margin-top:8px; min-height:1em; }
+.tabs{ display:grid; grid-template-columns:1fr 1fr; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:4px; margin:6px 0 14px; }
+.tabs button{ font:inherit; font-weight:600; font-size:15px; border:0; border-radius:10px; padding:10px; background:transparent; color:var(--ink-soft); cursor:pointer; }
+.tabs button[aria-selected="true"]{ background:var(--ink); color:var(--bg); }
+.card-head{ display:flex; align-items:baseline; justify-content:space-between; }
+.count{ font-size:44px; font-weight:700; line-height:1; }
+.count small{ font-size:18px; font-weight:500; color:var(--ink-soft); }
+.stamps{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin:18px 0 6px; }
+.stamp{ aspect-ratio:1; border-radius:50%; background:var(--empty); border:2px dashed var(--line); display:grid; place-items:center; font-size:12px; font-weight:600; color:#fff; transition:transform .35s ease, background .35s ease; }
+.stamp.on{ border:0; }
+.stamp.pop{ animation:pop .45s ease; }
+@keyframes pop{ 0%{ transform:scale(.4);} 70%{ transform:scale(1.12);} 100%{ transform:scale(1);} }
+@media (prefers-reduced-motion: reduce){ .stamp.pop{ animation:none; } .stamp{ transition:none; } }
+.legend{ display:flex; flex-wrap:wrap; gap:10px 14px; font-size:13px; color:var(--ink-soft); margin-top:10px; }
+.legend i{ display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+.hint{ font-size:14px; color:var(--ink-soft); margin-top:8px; }
+.flavors{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+.flavors button{ font:inherit; font-weight:600; font-size:15px; border-radius:12px; padding:11px; cursor:pointer; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); display:flex; align-items:center; gap:8px; justify-content:center; }
+.flavors button i{ width:12px; height:12px; border-radius:50%; display:inline-block; }
+.reward{ border-radius:18px; padding:18px; margin-bottom:14px; background:var(--ok-soft); border:1.5px solid var(--ok); }
+.reward h2{ color:var(--ok); }
+.steps{ list-style:none; margin:10px 0 0; padding:0; counter-reset:s; }
+.steps li{ counter-increment:s; display:flex; gap:12px; align-items:flex-start; padding:9px 0; color:var(--ink-soft); }
+.steps li::before{ content:counter(s); flex:none; width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-weight:700; font-size:14px; background:var(--empty); color:var(--ink-soft); }
+.steps li.done{ color:var(--ink); }
+.steps li.done::before{ content:"✓"; background:var(--ok); color:#fff; }
+.steps li.now{ color:var(--ink); font-weight:600; }
+.steps li.now::before{ background:var(--brand); color:#fff; }
+.code{ font-size:30px; font-weight:700; letter-spacing:3px; text-align:center; border:2px dashed var(--ink); border-radius:14px; padding:12px; margin:12px 0 4px; }
+.code-note{ text-align:center; font-size:13px; color:var(--ink-soft); }
+.status{ display:inline-flex; align-items:center; gap:6px; font-size:14px; font-weight:600; border-radius:999px; padding:5px 12px; }
+.status.pend{ background:var(--warn-soft); color:var(--warn); }
+.status.ok{ background:var(--ok-soft); color:var(--ok); }
+.status.err{ background:var(--err-soft); color:var(--err); }
+.pack{ display:flex; justify-content:space-between; align-items:center; gap:12px; border:1.5px solid var(--line); border-radius:14px; padding:14px; margin-top:10px; cursor:pointer; background:var(--surface); width:100%; font:inherit; color:var(--ink); text-align:left; }
+.pack[aria-pressed="true"]{ border-color:var(--brand); background:var(--brand-soft); }
+.pack b{ font-size:17px; display:block; }
+.pack span{ font-size:14px; color:var(--ink-soft); }
+.pack .price{ font-size:18px; font-weight:700; color:var(--ink); white-space:nowrap; }
+.balance{ display:flex; align-items:baseline; gap:8px; }
+.row{ display:flex; gap:8px; }
+.row .btn{ margin-top:10px; font-size:15px; padding:12px; }
+.toast{ position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:12px 18px; border-radius:12px; font-size:15px; font-weight:500; box-shadow:0 6px 24px rgba(0,0,0,.18); opacity:0; pointer-events:none; transition:opacity .25s; max-width:calc(100% - 36px); text-align:center; }
+.toast.show{ opacity:1; }
+footer{ font-size:13px; color:var(--ink-soft); text-align:center; margin-top:18px; }
+footer button{ font:inherit; color:var(--brand); background:none; border:0; text-decoration:underline; cursor:pointer; padding:4px; }
+[hidden]{ display:none !important; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">SMOOTH<span>EIN</span></div>
+    <div class="phase" id="phaseTag">Club SMOOTHEIN</div>
+  </header>
+  <p class="note">Prototipo para la presentación. Los pagos y la máquina son simulados.</p>
+
+  <!-- Registro -->
+  <section id="vRegister">
+    <h1>Únete al Club</h1>
+    <p>Junta 10 compras y recibe un smoothie de cortesía.</p>
+    <div class="why">
+      <h2>¿Para qué usamos tus datos?</h2>
+      <p>Solo para tu tarjeta de sellos y tu saldo de packs. Pedimos tu nombre de pila y tu celular. Nunca pedimos datos de salud.</p>
+    </div>
+    <div class="panel">
+      <label class="field" for="fName">Nombre de pila</label>
+      <input id="fName" type="text" autocomplete="given-name" placeholder="Camila">
+      <label class="field" for="fPhone">Celular para WhatsApp</label>
+      <input id="fPhone" type="tel" autocomplete="tel" placeholder="+56 9 1234 5678">
+      <label class="check"><input type="checkbox" id="fPolicy"><span>Acepto la política de datos del Club<small>Obligatorio para crear tu tarjeta</small></span></label>
+      <label class="check"><input type="checkbox" id="fPromo"><span>Quiero recibir sabores nuevos y promociones por WhatsApp<small>Opcional. Puedes darte de baja cuando quieras</small></span></label>
+      <div class="err-msg" id="regErr" role="alert"></div>
+      <button class="btn" id="btnRegister">Crear mi tarjeta</button>
+    </div>
+  </section>
+
+  <!-- Club -->
+  <section id="vClub" hidden>
+    <h1 id="hello">Hola</h1>
+    <div class="tabs" role="tablist" aria-label="Mi Club">
+      <button role="tab" id="tStamps" aria-selected="true" aria-controls="pStamps">Mis sellos</button>
+      <button role="tab" id="tBalance" aria-selected="false" aria-controls="pBalance">Mi saldo</button>
+    </div>
+
+    <div id="pStamps" role="tabpanel" aria-labelledby="tStamps">
+      <div class="reward" id="rewardBox" hidden>
+        <h2>Tienes un smoothie de cortesía</h2>
+        <p>Muéstrale este código al socio de SMOOTHEIN en su visita diaria.</p>
+        <div class="code" id="rewardCode">SMT-0000</div>
+        <ol class="steps" id="rewardSteps">
+          <li class="now">Muestra el código al socio</li>
+          <li>El socio lo valida en su planilla</li>
+          <li>Recibes tu vaso de cortesía</li>
+        </ol>
+        <button class="btn ok" id="btnRewardValidate">Simular validación del socio</button>
+      </div>
+      <div class="panel">
+        <div class="card-head">
+          <div class="count"><span id="stampCount">0</span> <small>de 10 sellos</small></div>
+        </div>
+        <div class="stamps" id="stamps" aria-live="polite"></div>
+        <div class="legend"><span><i style="background:var(--frutilla)"></i>Frutilla</span><span><i style="background:var(--pina)"></i>Piña</span><span><i style="background:var(--berries)"></i>Berries</span><span><i style="background:var(--mango)"></i>Mango</span></div>
+        <p class="hint" id="stampHint">Te faltan 10 compras para tu cortesía. Los sellos no son smoothies disponibles: tu saldo de packs está en "Mi saldo".</p>
+      </div>
+      <div class="panel">
+        <h2>Suma un sello</h2>
+        <p class="hint" style="margin-top:0">Después de pagar en la máquina, escanea el QR que está a su lado. En este prototipo, elige el sabor que compraste:</p>
+        <div class="flavors" id="flavorBtns"></div>
+      </div>
+    </div>
+
+    <div id="pBalance" role="tabpanel" aria-labelledby="tBalance" hidden>
+      <div class="panel">
+        <div class="balance"><span class="count" id="balCount">0</span><span style="color:var(--ink-soft)">smoothies prepagados</span></div>
+        <p class="hint">Fase 3 del plan: los packs se activan solo si el Club cumple sus metas. Precios referenciales.</p>
+        <div id="payStatus" hidden style="margin-top:6px"></div>
+        <button class="btn" id="btnRedeem" hidden>Canjear un smoothie</button>
+      </div>
+      <div class="panel" id="redeemBox" hidden>
+        <h2>Canje en tres pasos</h2>
+        <div class="code" id="redeemCode">SMT-0000</div>
+        <p class="code-note">Código de un solo uso</p>
+        <ol class="steps" id="redeemSteps">
+          <li class="now">Muestra este código al socio</li>
+          <li>El socio lo valida en su planilla</li>
+          <li>La máquina entrega tu vaso ya pagado</li>
+        </ol>
+        <button class="btn ok" id="btnRedeemValidate">Simular validación del socio</button>
+      </div>
+      <div class="panel" id="buyBox">
+        <h2>Compra un pack</h2>
+        <button class="pack" data-n="5" data-price="23750" aria-pressed="false"><div><b>Pack 5</b><span>5 % de descuento</span></div><div class="price">$23.750</div></button>
+        <button class="pack" data-n="10" data-price="45000" aria-pressed="false"><div><b>Pack 10</b><span>10 % de descuento</span></div><div class="price">$45.000</div></button>
+        <button class="btn" id="btnPay" disabled>Pagar por transferencia</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>Prototipo de SMOOTHEIN para ITHN026 Transformación Digital · <button id="btnReset">Reiniciar demostración</button></footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  const COLORS={Frutilla:'var(--frutilla)',Piña:'var(--pina)',Berries:'var(--berries)',Mango:'var(--mango)'};
+  const KEY='smoothein-club-demo';
+  const blank=()=>({name:'',registered:false,stamps:[],reward:null,balance:0,pay:null,redeem:null});
+  let st=blank();
+  try{ const s=localStorage.getItem(KEY); if(s){ st=Object.assign(blank(),JSON.parse(s)); } }catch(e){}
+  const save=()=>{ try{ localStorage.setItem(KEY,JSON.stringify(st)); }catch(e){} };
+  const $=id=>document.getElementById(id);
+  const code=()=> 'SMT-'+String(Math.floor(1000+Math.random()*9000));
+  let toastT; const toast=m=>{ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2600); };
+
+  // flavor buttons
+  Object.keys(COLORS).forEach(f=>{ const b=document.createElement('button'); b.innerHTML='<i style="background:'+COLORS[f]+'"></i>'+f; b.addEventListener('click',()=>addStamp(f)); $('flavorBtns').appendChild(b); });
+
+  function renderStamps(popIdx){
+    const box=$('stamps'); box.innerHTML='';
+    for(let i=0;i<10;i++){
+      const d=document.createElement('div'); d.className='stamp';
+      const f=st.stamps[i];
+      if(f){ d.classList.add('on'); d.style.background=COLORS[f]; d.setAttribute('aria-label','Sello '+(i+1)+': '+f); if(i===popIdx) d.classList.add('pop'); }
+      else d.setAttribute('aria-label','Sello '+(i+1)+' pendiente');
+      box.appendChild(d);
+    }
+    $('stampCount').textContent=st.stamps.length;
+    const left=10-st.stamps.length;
+    $('stampHint').textContent= left>0 ? 'Te faltan '+left+(left===1?' compra':' compras')+' para tu cortesía. Los sellos no son smoothies disponibles: tu saldo de packs está en "Mi saldo".' : 'Completaste la tarjeta.';
+    $('rewardBox').hidden=!st.reward;
+    if(st.reward){ $('rewardCode').textContent=st.reward; }
+  }
+  function addStamp(f){
+    if(st.reward){ toast('Primero canjea tu cortesía'); return; }
+    st.stamps.push(f); const idx=st.stamps.length-1;
+    if(st.stamps.length===10){ st.reward=code(); toast('¡Completaste 10 sellos! Ganaste un smoothie de cortesía'); }
+    else toast('Sello agregado: '+f);
+    save(); renderStamps(idx); setStepState('rewardSteps',0);
+  }
+  function setStepState(id,n){ const li=$(id).children; for(let i=0;i<li.length;i++){ li[i].className = i<n?'done':(i===n?'now':''); } }
+  $('btnRewardValidate').addEventListener('click',()=>{
+    const btn=$('btnRewardValidate'); btn.disabled=true; setStepState('rewardSteps',1);
+    setTimeout(()=>{ setStepState('rewardSteps',2); },900);
+    setTimeout(()=>{ setStepState('rewardSteps',3); toast('Canje validado. ¡Disfruta tu smoothie!'); },1800);
+    setTimeout(()=>{ st.stamps=[]; st.reward=null; save(); btn.disabled=false; renderStamps(); },3200);
+  });
+
+  // tabs
+  function tab(which){
+    const s=which==='s'; $('tStamps').setAttribute('aria-selected',s); $('tBalance').setAttribute('aria-selected',!s);
+    $('pStamps').hidden=!s; $('pBalance').hidden=s; $('phaseTag').textContent= s?'Fase 2 · tarjeta de sellos':'Fase 3 · packs prepagados';
+  }
+  $('tStamps').addEventListener('click',()=>tab('s')); $('tBalance').addEventListener('click',()=>tab('b'));
+
+  // balance / packs
+  let chosen=null;
+  document.querySelectorAll('.pack').forEach(p=>p.addEventListener('click',()=>{
+    document.querySelectorAll('.pack').forEach(q=>q.setAttribute('aria-pressed','false'));
+    p.setAttribute('aria-pressed','true'); chosen={n:+p.dataset.n,price:+p.dataset.price}; $('btnPay').disabled=false;
+  }));
+  function renderBalance(){
+    $('balCount').textContent=st.balance;
+    const ps=$('payStatus');
+    if(st.pay){
+      ps.hidden=false;
+      if(st.pay.state==='pend') ps.innerHTML='<span class="status pend">Pago pendiente</span><p class="hint">Pack '+st.pay.n+'. Estamos esperando la confirmación de tu transferencia.</p><div class="row"><button class="btn ok" id="simOk">Simular pago confirmado</button><button class="btn ghost" id="simErr">Simular rechazo</button></div>';
+      else if(st.pay.state==='ok') ps.innerHTML='<span class="status ok">Pago confirmado</span><p class="hint">Se sumaron '+st.pay.n+' smoothies a tu saldo.</p>';
+      else ps.innerHTML='<span class="status err">Pago rechazado</span><p class="hint">La transferencia no se completó. No se cobró nada. Puedes intentarlo de nuevo.</p>';
+      const ok=$('simOk'), er=$('simErr');
+      if(ok) ok.addEventListener('click',()=>{ st.balance+=st.pay.n; st.pay.state='ok'; save(); renderBalance(); toast('Pago confirmado: +'+st.pay.n+' smoothies'); });
+      if(er) er.addEventListener('click',()=>{ st.pay.state='err'; save(); renderBalance(); toast('Pago rechazado'); });
+    } else ps.hidden=true;
+    $('btnRedeem').hidden = !(st.balance>0) || !!st.redeem;
+    $('redeemBox').hidden = !st.redeem;
+    if(st.redeem) $('redeemCode').textContent=st.redeem;
+    $('buyBox').hidden = !!(st.pay && st.pay.state==='pend');
+  }
+  $('btnPay').addEventListener('click',()=>{ if(!chosen) return; st.pay={n:chosen.n,state:'pend'}; save(); renderBalance(); toast('Transferencia iniciada'); });
+  $('btnRedeem').addEventListener('click',()=>{ st.redeem=code(); save(); setStepState('redeemSteps',0); renderBalance(); });
+  $('btnRedeemValidate').addEventListener('click',()=>{
+    const btn=$('btnRedeemValidate'); btn.disabled=true; setStepState('redeemSteps',1);
+    setTimeout(()=>setStepState('redeemSteps',2),900);
+    setTimeout(()=>{ setStepState('redeemSteps',3); st.balance-=1; toast('Canje validado. Te quedan '+st.balance+' smoothies'); },1800);
+    setTimeout(()=>{ st.redeem=null; save(); btn.disabled=false; renderBalance(); },3200);
+  });
+
+  // register
+  $('btnRegister').addEventListener('click',()=>{
+    const n=$('fName').value.trim(), ph=$('fPhone').value.replace(/\D/g,'');
+    let e='';
+    if(!n) e='Escribe tu nombre de pila.';
+    else if(ph.length<8) e='Escribe un celular válido para recibir tu tarjeta por WhatsApp.';
+    else if(!$('fPolicy').checked) e='Para crear tu tarjeta, acepta la política de datos.';
+    $('regErr').textContent=e; if(e) return;
+    st.name=n; st.registered=true; save(); show(); toast('Tarjeta creada. Ya puedes sumar sellos');
+  });
+
+  function show(){
+    $('vRegister').hidden=st.registered; $('vClub').hidden=!st.registered;
+    if(st.registered){ $('hello').textContent='Hola, '+st.name; renderStamps(); renderBalance(); tab('s'); }
+    else $('phaseTag').textContent='Club SMOOTHEIN';
+  }
+  $('btnReset').addEventListener('click',()=>{ st=blank(); save(); ['fName','fPhone'].forEach(i=>$(i).value=''); $('fPolicy').checked=false; $('fPromo').checked=false; $('regErr').textContent=''; show(); window.scrollTo(0,0); toast('Demostración reiniciada'); });
+  show();
+})();
+</script>
+</body>
+</html>
